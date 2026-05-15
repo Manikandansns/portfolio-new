@@ -1,5 +1,7 @@
 import { motion } from "motion/react";
 import { useGsapReveal } from "../hooks/useGsapReveal";
+import { Tilt3D } from "../components/Tilt3D";
+import { OrbitalSkills } from "../components/OrbitalSkills";
 import { skills, proficiency } from "../data/portfolio";
 
 const CATEGORIES = Object.keys(skills) as (keyof typeof skills)[];
@@ -17,61 +19,66 @@ export function Skills() {
           stack <span className="grad-text">overload</span>
         </h2>
 
-        <div className="grid lg:grid-cols-[1.2fr_1fr] gap-8 items-start">
-          {/* Category grid */}
+        <div className="grid lg:grid-cols-[1.2fr_1fr] gap-10 items-center">
+          {/* Category grid — each card tilts in 3D on hover */}
           <div className="grid sm:grid-cols-2 gap-4">
             {CATEGORIES.map((cat) => (
-              <div key={cat} className="reveal glass glow-border rounded-xl p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-mono text-sm neon">{cat}</span>
-                  <span className="font-mono text-[10px] text-[var(--fg-dim)] uppercase tracking-widest">
-                    {skills[cat].length} items
-                  </span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {skills[cat].map((s) => (
-                    <span
-                      key={s}
-                      className="font-mono text-xs px-2.5 py-1 rounded-md transition-all hover:-translate-y-0.5"
-                      style={{
-                        background: "color-mix(in srgb, var(--accent) 8%, transparent)",
-                        border: "1px solid color-mix(in srgb, var(--accent) 25%, transparent)",
-                        color: "var(--accent)",
-                      }}
-                    >
-                      {s}
+              <Tilt3D key={cat} max={10} scale={1.04} className="reveal">
+                <div className="glass glow-border rounded-xl p-5 h-full" style={{ transformStyle: "preserve-3d" }}>
+                  <div className="flex items-center justify-between mb-3" style={{ transform: "translateZ(30px)" }}>
+                    <span className="font-mono text-sm neon">{cat}</span>
+                    <span className="font-mono text-[10px] text-[var(--fg-dim)] uppercase tracking-widest">
+                      {skills[cat].length} items
                     </span>
-                  ))}
+                  </div>
+                  <div className="flex flex-wrap gap-2" style={{ transform: "translateZ(20px)" }}>
+                    {skills[cat].map((s) => (
+                      <span
+                        key={s}
+                        className="font-mono text-xs px-2.5 py-1 rounded-md transition-all hover:-translate-y-0.5"
+                        style={{
+                          background: "color-mix(in srgb, var(--accent) 8%, transparent)",
+                          border: "1px solid color-mix(in srgb, var(--accent) 25%, transparent)",
+                          color: "var(--accent)",
+                        }}
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              </Tilt3D>
             ))}
           </div>
 
-          {/* Proficiency bars */}
-          <div className="reveal glass glow-border rounded-xl p-6">
-            <div className="font-mono text-xs text-[var(--fg-dim)] mb-4">// proficiency.cfg</div>
-            <div className="space-y-4">
-              {proficiency.map((p) => (
-                <div key={p.name}>
-                  <div className="flex justify-between font-mono text-xs mb-1">
-                    <span className="text-[var(--fg)]">{p.name}</span>
-                    <span className="neon">{p.value}%</span>
+          {/* Orbital stack visualisation */}
+          <div className="reveal flex flex-col items-center">
+            <OrbitalSkills />
+            <div className="mt-6 w-full glass glow-border rounded-xl p-4 max-w-sm mx-auto">
+              <div className="font-mono text-[10px] text-[var(--fg-dim)] mb-3 tracking-[0.25em] uppercase">// proficiency.cfg</div>
+              <div className="space-y-3">
+                {proficiency.slice(0, 5).map((p) => (
+                  <div key={p.name}>
+                    <div className="flex justify-between font-mono text-[11px] mb-1">
+                      <span className="text-[var(--fg)]">{p.name}</span>
+                      <span className="neon">{p.value}%</span>
+                    </div>
+                    <div className="h-1 rounded-full bg-white/5 overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        whileInView={{ width: `${p.value}%` }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 1.1, ease: "easeOut" }}
+                        className="h-full rounded-full"
+                        style={{
+                          background: "linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3))",
+                          boxShadow: "0 0 10px color-mix(in srgb, var(--accent) 40%, transparent)",
+                        }}
+                      />
+                    </div>
                   </div>
-                  <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      whileInView={{ width: `${p.value}%` }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 1.2, ease: "easeOut" }}
-                      className="h-full rounded-full"
-                      style={{
-                        background: "linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3))",
-                        boxShadow: "0 0 10px color-mix(in srgb, var(--accent) 40%, transparent)",
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>

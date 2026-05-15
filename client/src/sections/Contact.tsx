@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { Mail, MapPin, Phone, Send } from "lucide-react";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { MagneticButton } from "../components/MagneticButton";
+import { Tilt3D } from "../components/Tilt3D";
 import { useGsapReveal } from "../hooks/useGsapReveal";
 import { profile } from "../data/portfolio";
 
@@ -51,7 +52,8 @@ export function Contact() {
         </p>
 
         <div className="grid lg:grid-cols-[1.1fr_1fr] gap-8 items-start">
-          <form onSubmit={onSubmit} className="reveal glass glow-border rounded-xl p-6 space-y-4">
+          <Tilt3D max={6} scale={1.01} className="reveal">
+          <form onSubmit={onSubmit} className="glass glow-border rounded-xl p-6 space-y-4" style={{ transformStyle: "preserve-3d" }}>
             <div className="grid sm:grid-cols-2 gap-4">
               <Field name="name" label="name" placeholder="Your name" required />
               <Field name="email" label="email" type="email" placeholder="you@domain.com" required />
@@ -79,6 +81,7 @@ export function Contact() {
               </MagneticButton>
             </div>
           </form>
+          </Tilt3D>
 
           <div className="space-y-3">
             <InfoLine icon={Mail} label="email" value={profile.email} href={`mailto:${profile.email}`} />

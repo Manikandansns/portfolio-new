@@ -21,7 +21,14 @@ export function LenisProvider({ children }: { children: ReactNode }) {
     gsap.ticker.add(raf);
     gsap.ticker.lagSmoothing(0);
 
+    // Refresh once everything is laid out so reveals trigger correctly
+    const refreshId = window.setTimeout(() => ScrollTrigger.refresh(), 150);
+    const onLoad = () => ScrollTrigger.refresh();
+    window.addEventListener("load", onLoad);
+
     return () => {
+      window.clearTimeout(refreshId);
+      window.removeEventListener("load", onLoad);
       gsap.ticker.remove(raf);
       lenis.destroy();
     };

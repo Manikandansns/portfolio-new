@@ -5,27 +5,13 @@ import { ArrowDown, Mail, Terminal as TerminalIcon } from "lucide-react";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { MatrixRain } from "../components/MatrixRain";
 import { MagneticButton } from "../components/MagneticButton";
+import { DevRig3D } from "../components/DevRig3D";
 import { profile } from "../data/portfolio";
-
-const BOOT = [
-  "$ initializing developer profile...",
-  "$ loading fullstack systems...",
-  "$ injecting neon... ok",
-  "$ access granted.",
-  "$ welcome to manikandan.exe",
-];
 
 export function Hero() {
   const heroRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
-  const [bootIdx, setBootIdx] = useState(0);
   const [roleIdx, setRoleIdx] = useState(0);
-
-  useEffect(() => {
-    if (bootIdx >= BOOT.length) return;
-    const t = setTimeout(() => setBootIdx((i) => i + 1), 380);
-    return () => clearTimeout(t);
-  }, [bootIdx]);
 
   useEffect(() => {
     const id = setInterval(() => setRoleIdx((i) => (i + 1) % profile.roles.length), 2400);
@@ -136,7 +122,9 @@ export function Hero() {
             </div>
           </div>
 
-          <BootTerminal lines={BOOT.slice(0, bootIdx)} current={BOOT[bootIdx]} />
+          <div className="relative">
+            <DevRig3D />
+          </div>
         </div>
       </div>
 
@@ -170,38 +158,6 @@ function IconLink({ href, children }: { href: string; children: React.ReactNode 
   );
 }
 
-function BootTerminal({ lines, current }: { lines: string[]; current?: string }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: 30 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.9, delay: 0.4 }}
-      className="glass glow-border rounded-xl p-1 shadow-2xl"
-    >
-      <div className="flex items-center gap-1.5 border-b border-[var(--line)] px-3 py-2">
-        <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f56]" />
-        <span className="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]" />
-        <span className="h-2.5 w-2.5 rounded-full bg-[#27c93f]" />
-        <span className="ml-3 font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--fg-dim)]">
-          ~/manikandan — zsh — 80x24
-        </span>
-      </div>
-      <div className="p-4 font-mono text-sm space-y-1 min-h-[220px]">
-        {lines.map((l, i) => (
-          <div key={i} className={l.includes("granted") || l.includes("welcome") ? "neon" : "text-[var(--fg-dim)]"}>
-            {l}
-          </div>
-        ))}
-        {current && (
-          <div className="text-[var(--accent)]">
-            {current}
-            <span className="blink">_</span>
-          </div>
-        )}
-      </div>
-    </motion.div>
-  );
-}
 
 const SNIPPETS = [
   "const dev = { stack: ['MERN','Next','Prisma'] }",

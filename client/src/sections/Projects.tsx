@@ -4,6 +4,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowUpRight } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import { MagneticButton } from "../components/MagneticButton";
+import { Tilt3D } from "../components/Tilt3D";
 import { projects, type Project } from "../data/portfolio";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -64,7 +65,7 @@ export function Projects() {
       <div ref={wrap} className="relative">
         <div ref={track} className="flex gap-6 px-6 lg:flex-row lg:flex-nowrap flex-col lg:px-12">
           {projects.map((p, i) => (
-            <ProjectCard key={p.title} project={p} index={i} />
+            <ProjectCard key={p.title} project={p} index={i} total={projects.length} />
           ))}
         </div>
       </div>
@@ -72,12 +73,14 @@ export function Projects() {
   );
 }
 
-function ProjectCard({ project, index }: { project: Project; index: number }) {
+function ProjectCard({ project, index, total }: { project: Project; index: number; total: number }) {
   const c = accentMap[project.accent];
   return (
     <MagneticButton strength={0.08} className="lg:w-[560px] w-full shrink-0">
+      <Tilt3D max={9} scale={1.03} className="h-full">
       <article
         className="glass glow-border rounded-2xl p-6 lg:p-8 h-full lg:h-[60vh] flex flex-col justify-between relative overflow-hidden group"
+        style={{ transformStyle: "preserve-3d" }}
       >
         <div
           aria-hidden
@@ -88,7 +91,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
         />
         <div className="absolute inset-0 grid-overlay opacity-30 pointer-events-none" />
 
-        <div className="relative">
+        <div className="relative" style={{ transform: "translateZ(40px)" }}>
           <div className="flex items-center justify-between mb-6">
             <span
               className="font-mono text-[10px] tracking-[0.25em] uppercase px-2 py-0.5 rounded-full"
@@ -97,7 +100,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
               {project.tag}
             </span>
             <span className="font-mono text-xs text-[var(--fg-dim)]">
-              {String(index + 1).padStart(2, "0")} / {String(6).padStart(2, "0")}
+              {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
             </span>
           </div>
 
@@ -119,7 +122,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
           </div>
         </div>
 
-        <div className="relative flex items-center justify-between mt-8">
+        <div className="relative flex items-center justify-between mt-8" style={{ transform: "translateZ(30px)" }}>
           <div className="flex gap-2">
             {project.github && (
               <a href={project.github} target="_blank" rel="noreferrer" className="btn-neon">
@@ -146,6 +149,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
           </div>
         </div>
       </article>
+      </Tilt3D>
     </MagneticButton>
   );
 }
