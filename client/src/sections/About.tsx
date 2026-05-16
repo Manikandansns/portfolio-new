@@ -1,124 +1,194 @@
-import { motion } from "motion/react";
-import { Cpu, Database, Rocket, Sparkles } from "lucide-react";
-import { useGsapReveal } from "../hooks/useGsapReveal";
-import { Tilt3D } from "../components/Tilt3D";
-import { ParallaxLayer } from "../components/ParallaxLayer";
-import { profile, stats } from "../data/portfolio";
+import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import portrait from "../assets/manikandan.jpg";
+import { profile } from "../data/portfolio";
 
-const HIGHLIGHTS = [
-  { icon: Rocket, label: "Scalable SPAs", text: "MERN/Next apps tuned for speed and DX." },
-  { icon: Database, label: "Robust Backends", text: "Node, Hono, Express, Prisma, REST + auth." },
-  { icon: Cpu, label: "AI Integrations", text: "Gemini-powered agents and automation." },
-  { icon: Sparkles, label: "Cinematic UI", text: "GSAP + Motion micro-interactions." },
-];
+gsap.registerPlugin(ScrollTrigger);
 
+/**
+ * Asymmetric editorial about section. Three columns, but offset rows.
+ *  Left rail  — index number + section meta
+ *  Center     — long-form story typography, oversized first letter
+ *  Right rail — portrait + sidecar code annotations that float on scroll
+ */
 export function About() {
-  const ref = useGsapReveal<HTMLDivElement>({ selector: ".reveal", y: 50, stagger: 0.12 });
+  const ref = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Long-form copy reveal — mask-from-bottom, line by line
+      const lines = gsap.utils.toArray<HTMLElement>(".about-line");
+      lines.forEach((line) => {
+        gsap.from(line, {
+          yPercent: 100,
+          duration: 1,
+          ease: "expo.out",
+          scrollTrigger: { trigger: line, start: "top 88%" },
+        });
+      });
+
+      // Portrait parallax (very subtle)
+      gsap.to(".about-portrait", {
+        yPercent: -8,
+        ease: "none",
+        scrollTrigger: { trigger: ref.current, start: "top bottom", end: "bottom top", scrub: 1 },
+      });
+
+      // Sidecar code annotations drift in opposite direction
+      gsap.to(".about-sidecar", {
+        yPercent: 12,
+        ease: "none",
+        scrollTrigger: { trigger: ref.current, start: "top bottom", end: "bottom top", scrub: 1 },
+      });
+
+      // Index number scrubs as you scroll the section
+      const num = document.querySelector<HTMLElement>(".about-index-num");
+      if (num) {
+        gsap.fromTo(
+          num,
+          { opacity: 0.15 },
+          {
+            opacity: 0.4,
+            scrollTrigger: { trigger: ref.current, start: "top 70%", end: "bottom 30%", scrub: true },
+          },
+        );
+      }
+    }, ref);
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <section id="about" className="relative">
-      <div className="absolute inset-0 grid-overlay opacity-50" />
-      <div ref={ref} className="section relative">
-        <div className="reveal mb-6"><span className="section-label">// about</span></div>
-        <h2 className="reveal font-mono text-3xl md:text-5xl font-bold mb-4 balance">
-          building <span className="grad-text">scalable systems</span>
-          <br /> with cinematic interfaces.
-        </h2>
-        <p className="reveal max-w-2xl text-[var(--fg-dim)] mb-12 balance">
-          I'm Manikandan — a Full Stack engineer and AI & Data Science student at SNS College of
-          Engineering. I architect ERP systems, SaaS platforms, dashboards, booking systems and
-          AI-driven tools. I obsess over clean code, fast UIs, and shipping things that matter.
-        </p>
+    <section id="about" ref={ref} className="relative">
+      <div className="relative mx-auto max-w-[1280px] px-6 md:px-10 py-32 md:py-44">
+        {/* Oversized section index, sits behind content */}
+        <div className="about-index-num pointer-events-none absolute -top-6 md:-top-10 -left-2 md:-left-6 font-mono font-extrabold leading-none text-[18vw] md:text-[15vw] text-[var(--fg)]" style={{ opacity: 0.06 }}>
+          01
+        </div>
 
-        <div className="grid md:grid-cols-[1fr_1.3fr] gap-10 items-start">
-          {/* Portrait */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.92 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.9, ease: "easeOut" }}
-            className="reveal relative"
-          >
-            <ParallaxLayer speed={0.25}>
-              <Tilt3D max={12} scale={1.04} className="rounded-2xl">
-                <div className="glow-border glass rounded-2xl p-2 relative overflow-hidden">
-                  <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(closest-side, color-mix(in srgb, var(--accent) 25%, transparent), transparent 70%)" }} />
-                  <img
-                    src={portrait}
-                    alt={profile.name}
-                    className="w-full rounded-xl object-cover aspect-[4/5] grayscale contrast-110"
-                    style={{ filter: "grayscale(1) contrast(1.1) brightness(1.05)" }}
-                  />
-                  {/* scanline overlay */}
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute inset-0 rounded-xl"
-                    style={{
-                      background:
-                        "repeating-linear-gradient(0deg, transparent 0 2px, color-mix(in srgb, var(--accent) 10%, transparent) 2px 3px)",
-                      mixBlendMode: "screen",
-                      opacity: 0.35,
-                    }}
-                  />
-                  {/* floating HUD chips on top of portrait, pushed forward in Z */}
-                  <div className="absolute top-3 left-3 glass rounded-md px-2 py-1 font-mono text-[10px] tracking-widest" style={{ transform: "translateZ(40px)", color: "var(--accent)", border: "1px solid color-mix(in srgb, var(--accent) 35%, transparent)" }}>
-                    <span className="blink">●</span> rec
-                  </div>
-                  <div className="absolute top-3 right-3 glass rounded-md px-2 py-1 font-mono text-[10px] tracking-widest" style={{ transform: "translateZ(40px)", color: "var(--accent-3)" }}>
-                    id://M-01
-                  </div>
-                  <div className="absolute bottom-4 left-4 right-4 glass rounded-md px-3 py-2 font-mono text-xs flex items-center justify-between" style={{ transform: "translateZ(50px)" }}>
-                    <span className="neon">● online</span>
-                    <span className="text-[var(--fg-dim)]">{profile.location}</span>
-                  </div>
+        <div className="grid grid-cols-12 gap-x-6 md:gap-x-10 gap-y-12 md:gap-y-20">
+          {/* Left rail — meta */}
+          <aside className="col-span-12 md:col-span-3 md:pt-32">
+            <div className="font-mono text-[10px] tracking-[0.35em] uppercase text-[var(--fg-dim)] mb-2">
+              · 01 / about
+            </div>
+            <div className="font-mono text-xs leading-relaxed text-[var(--fg-dim)] space-y-1">
+              <div>since &nbsp; <span className="text-[var(--fg)]">dec · 2022</span></div>
+              <div>based &nbsp; <span className="text-[var(--fg)]">cuddalore, tn</span></div>
+              <div>degree <span className="text-[var(--fg)]">b.tech ai &amp; ds</span></div>
+              <div>gpa &nbsp;&nbsp;&nbsp; <span className="text-[var(--fg)]">8.25 / 10</span></div>
+            </div>
+          </aside>
+
+          {/* Center — narrative */}
+          <div className="col-span-12 md:col-span-6">
+            <h2 className="font-mono text-[34px] sm:text-5xl md:text-[58px] leading-[0.95] tracking-tight">
+              <span className="inline-block overflow-hidden align-bottom">
+                <span className="about-line inline-block">i build software</span>
+              </span>
+              <br />
+              <span className="inline-block overflow-hidden align-bottom">
+                <span className="about-line inline-block">that <span className="grad-text">ships</span> — and</span>
+              </span>
+              <br />
+              <span className="inline-block overflow-hidden align-bottom">
+                <span className="about-line inline-block">interfaces that <em className="font-mono italic neon">stick</em>.</span>
+              </span>
+            </h2>
+
+            <div className="mt-10 max-w-[52ch] text-[var(--fg-dim)] text-[15px] leading-[1.85] font-mono">
+              <p>
+                Two and a half years deep into the modern web. Day job is{" "}
+                <span className="text-[var(--fg)]">React · Node · Hono · Prisma · Postgres</span>{" "}
+                at RDX Digital, where I own admin dashboards, quotation systems, and ERP-grade business
+                tooling. Off-hours, I&apos;m wiring up GSAP timelines, building AI agents on Gemini, and
+                obsessing over scroll choreography.
+              </p>
+              <p className="mt-6">
+                Coming up I had to choose between elegant UI and a hardened backend. I never picked.
+                So I sit in the middle — typed APIs, fast paint times, animations that don&apos;t feel
+                like decoration.
+              </p>
+            </div>
+
+            {/* Manifesto strip — three principles, hairline only */}
+            <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-px bg-[var(--line)] border border-[var(--line)]">
+              {[
+                ["ship", "production over prototype, always."],
+                ["shape", "typed end-to-end. zod at the seams."],
+                ["sense", "motion serves story, not the other way."],
+              ].map(([k, v]) => (
+                <div key={k} className="bg-[var(--bg)] p-5">
+                  <div className="font-mono text-[10px] tracking-[0.35em] uppercase neon">{k}</div>
+                  <div className="font-mono text-sm text-[var(--fg)] mt-2">{v}</div>
                 </div>
-              </Tilt3D>
-            </ParallaxLayer>
-            {/* Stat strip — drifts at a different speed for parallax */}
-            <ParallaxLayer speed={-0.15}>
-              <div className="reveal mt-4 grid grid-cols-2 gap-2">
-                {stats.map((s) => (
-                  <div key={s.label} className="glass glow-border rounded-lg p-3">
-                    <div className="font-mono text-2xl neon">{s.value}</div>
-                    <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--fg-dim)]">{s.label}</div>
-                  </div>
-                ))}
-              </div>
-            </ParallaxLayer>
-          </motion.div>
-
-          {/* Highlight cards */}
-          <div className="grid sm:grid-cols-2 gap-4">
-            {HIGHLIGHTS.map((h) => (
-              <div key={h.label} className="reveal glass glow-border rounded-xl p-5 group transition-transform hover:-translate-y-1">
-                <div
-                  className="grid h-10 w-10 place-items-center rounded-md mb-3"
-                  style={{ background: "color-mix(in srgb, var(--accent) 10%, transparent)", color: "var(--accent)", border: "1px solid color-mix(in srgb, var(--accent) 30%, transparent)" }}
-                >
-                  <h.icon size={18} />
-                </div>
-                <div className="font-mono text-sm neon">{h.label}</div>
-                <p className="text-sm text-[var(--fg-dim)] mt-1">{h.text}</p>
-              </div>
-            ))}
-
-            <div className="reveal glass glow-border rounded-xl p-5 sm:col-span-2 font-mono text-xs">
-              <div className="text-[var(--fg-dim)] mb-2">// personal_info.json</div>
-              <pre className="text-[var(--fg)] whitespace-pre-wrap leading-relaxed">
-{`{
-  "name":     "Manikandan B",
-  "degree":   "B.Tech AI & Data Science (GPA 8.25)",
-  "based_in": "Cuddalore, Tamil Nadu",
-  "email":    "${profile.email}",
-  "phone":    "${profile.phone}",
-  "open_to":  ["freelance", "fulltime", "collabs"]
-}`}
-              </pre>
+              ))}
             </div>
           </div>
+
+          {/* Right rail — portrait + sidecar */}
+          <aside className="col-span-12 md:col-span-3 md:pt-12 relative">
+            <div className="about-portrait relative">
+              <div className="relative overflow-hidden" style={{ aspectRatio: "3 / 4" }}>
+                <img
+                  src={portrait}
+                  alt={profile.name}
+                  className="absolute inset-0 h-full w-full object-cover"
+                  style={{ filter: "grayscale(1) contrast(1.08) brightness(0.95)" }}
+                />
+                {/* scanline + tint */}
+                <div
+                  aria-hidden
+                  className="absolute inset-0 mix-blend-screen pointer-events-none"
+                  style={{
+                    background:
+                      "repeating-linear-gradient(0deg, transparent 0 2px, color-mix(in srgb, var(--accent) 22%, transparent) 2px 3px)",
+                    opacity: 0.18,
+                  }}
+                />
+                <div className="absolute inset-0 ring-1 ring-[var(--line)]" />
+              </div>
+              {/* corner crops */}
+              <Corner pos="tl" />
+              <Corner pos="tr" />
+              <Corner pos="bl" />
+              <Corner pos="br" />
+
+              {/* meta strip */}
+              <div className="mt-3 flex items-center justify-between font-mono text-[10px] tracking-[0.3em] uppercase text-[var(--fg-dim)]">
+                <span>subject · M-01</span>
+                <span className="neon">● live</span>
+              </div>
+            </div>
+
+            {/* Sidecar code annotation */}
+            <div className="about-sidecar mt-10 border-l border-[var(--accent)] pl-4 font-mono text-[11px] leading-relaxed text-[var(--fg-dim)]">
+              <div className="neon text-[10px] tracking-[0.3em] uppercase mb-2">// annotation</div>
+              <p className="text-[var(--fg)]">
+                if (problem.depth === "deep") {"{"}<br />
+                &nbsp;&nbsp;return manikandan.solve(problem);<br />
+                {"}"}
+              </p>
+              <p className="mt-4">— production guarantee.</p>
+            </div>
+          </aside>
         </div>
       </div>
     </section>
+  );
+}
+
+function Corner({ pos }: { pos: "tl" | "tr" | "bl" | "br" }) {
+  const cls: Record<typeof pos, string> = {
+    tl: "top-0 left-0 border-t border-l",
+    tr: "top-0 right-0 border-t border-r",
+    bl: "bottom-0 left-0 border-b border-l",
+    br: "bottom-0 right-0 border-b border-r",
+  };
+  return (
+    <span
+      aria-hidden
+      className={`absolute h-3 w-3 ${cls[pos]} border-[var(--accent)]`}
+    />
   );
 }

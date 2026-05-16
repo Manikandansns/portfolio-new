@@ -4,13 +4,7 @@ import { CustomCursor } from "./components/CustomCursor";
 import { Loader } from "./components/Loader";
 import { Navbar } from "./components/Navbar";
 import { ScrollProgress } from "./components/ScrollProgress";
-import { Hero } from "./sections/Hero";
-import { About } from "./sections/About";
-import { Skills } from "./sections/Skills";
-import { Journey } from "./sections/Journey";
-import { Projects } from "./sections/Projects";
-import { Terminal } from "./sections/Terminal";
-import { Contact } from "./sections/Contact";
+import { LaptopIntro } from "./sections/LaptopIntro";
 
 export default function App() {
   return (
@@ -20,14 +14,13 @@ export default function App() {
         <CustomCursor />
         <ScrollProgress />
         <Navbar />
+        {/* The entire portfolio is hosted INSIDE the LaptopIntro section —
+           the laptop is pinned for the whole page, the intro choreography
+           runs first, then About / Skills / Journey / Projects / Terminal /
+           Contact scroll inside the laptop's screen so the laptop frame
+           reads as a permanent browser window. */}
         <main>
-          <Hero />
-          <About />
-          <Skills />
-          <Journey />
-          <Projects />
-          <Terminal />
-          <Contact />
+          <LaptopIntro />
         </main>
       </LenisProvider>
     </ThemeProvider>
