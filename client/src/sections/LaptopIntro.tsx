@@ -106,12 +106,12 @@ export function LaptopIntro() {
             const sRect = r.screen.getBoundingClientRect();
             const vw = window.innerWidth;
             const vh = window.innerHeight;
-            // Fit the screen rect within the viewport, prioritising
-            // whichever axis is more constrained.
-            const fillScale = Math.min(
-              (vw * 0.98) / Math.max(1, sRect.width),
-              (vh * 0.96) / Math.max(1, sRect.height),
-            );
+            // Width-priority fill: scale the laptop until its SCREEN spans
+            // the viewport width edge-to-edge. The deck/bezel may extend
+            // off the top + bottom of the viewport at full zoom — that's
+            // intentional, the screen is what the user is "looking at".
+            const fillScale = vw / Math.max(1, sRect.width);
+            void vh;
 
             const z = ease(zoom);
             baseScale = sc + (sc * fillScale - sc) * z;
